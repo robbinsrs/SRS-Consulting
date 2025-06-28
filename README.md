@@ -176,6 +176,60 @@ EMAIL_HOST_PASSWORD=your-app-password
 REACT_APP_API_URL=http://localhost:8000/api
 ```
 
+## Docker Configuration
+
+### Proxy Setup
+The frontend container is configured to proxy API requests to the backend:
+- **Development**: `http://backend:8000` (Docker service communication)
+- **Production**: Configure based on your deployment setup
+
+### Container Communication
+- Frontend container communicates with backend using service name `backend:8000`
+- Database container accessible via `db:5432` from backend
+- All containers are on the same Docker network for internal communication
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. **"Proxy error: Could not proxy request"**
+- **Cause**: Frontend can't reach backend API
+- **Solution**: Ensure both containers are running: `docker-compose ps`
+- **Check**: Backend logs: `docker-compose logs backend`
+
+#### 2. **"CSRF Failed: Origin checking failed"**
+- **Cause**: Frontend origin not in trusted origins
+- **Solution**: Verify `CSRF_TRUSTED_ORIGINS` includes `http://localhost:3000`
+
+#### 3. **"Database relation does not exist"**
+- **Cause**: Migrations not applied
+- **Solution**: Run `docker-compose exec backend python manage.py migrate`
+
+#### 4. **"Invalid credentials" in admin**
+- **Cause**: Admin user not created
+- **Solution**: Run `docker-compose exec backend python manage.py create_admin_user`
+
+#### 5. **Frontend not loading**
+- **Cause**: Container not started or build issues
+- **Solution**: Rebuild containers: `docker-compose up --build`
+
+### Debug Commands
+```bash
+# Check container status
+docker-compose ps
+
+# View logs
+docker-compose logs backend
+docker-compose logs frontend
+
+# Restart services
+docker-compose restart backend
+docker-compose restart frontend
+
+# Rebuild and start
+docker-compose up --build
+```
+
 ## Admin Access
 
 - **Admin Dashboard:** Access at `/admin` with secure session authentication
