@@ -1,9 +1,14 @@
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from .models import ContactRequest
 from .serializers import ContactRequestSerializer
 from .utils import send_consultation_notification, send_confirmation_email
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 
 class ContactRequestCreateView(generics.CreateAPIView):
@@ -55,4 +60,68 @@ class ContactRequestListView(generics.ListAPIView):
         if end_date:
             queryset = queryset.filter(created_at__date__lte=end_date)
         
-        return queryset 
+        return queryset
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def admin_login(request):
+    """Secure admin login endpoint."""
+    username = request.data.get('username')
+    password = request.data.get('password')
+    
+    if not username or not password:
+        return Response({
+            'error': 'Username and password are required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    user = authenticate(request, username=username, password=password)
+    
+    if user is not None and user.is_staff:
+        login(request, user)
+        return Response({
+            'message': 'Login successful',
+            'user': {
+                'username': user.username,
+                'is_staff': user.is_staff
+            }
+        }, status=status.HTTP_200_OK)
+    else:
+        return Response({
+            'error': 'Invalid credentials or insufficient permissions'
+        }, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def admin_logout(request):
+    """Secure admin logout endpoint."""
+    logout(request)
+    return Response({
+        'message': 'Logout successful'
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def admin_contact_request_list_secure(request):
+    """Secure API view for listing contact requests with session authentication."""
+    if not request.user.is_staff:
+        return Response({
+            'error': 'Insufficient permissions'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
+    # Get all contact requests
+    queryset = ContactRequest.objects.all().order_by('-created_at')
+    serializer = ContactRequestSerializer(queryset, many=True)
+    
+    return Response({
+        'enquiries': serializer.data,
+        'count': queryset.count()
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    return Response({'message': 'CSRF cookie set'}) 
