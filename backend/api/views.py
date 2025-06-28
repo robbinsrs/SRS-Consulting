@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from .models import ContactRequest
 from .serializers import ContactRequestSerializer
 from .utils import send_consultation_notification, send_confirmation_email
-from django.views.decorators.csrf import ensure_csrf_cookie
 
 
 class ContactRequestCreateView(generics.CreateAPIView):
@@ -122,6 +121,5 @@ def admin_contact_request_list_secure(request):
 
 
 @api_view(['GET'])
-@ensure_csrf_cookie
 def get_csrf_token(request):
     return Response({'message': 'CSRF cookie set'}) 
