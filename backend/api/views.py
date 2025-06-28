@@ -5,9 +5,78 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.db import connection
+from django.db.utils import OperationalError
+from django.utils import timezone
+import platform
 from .models import ContactRequest
 from .serializers import ContactRequestSerializer
 from .utils import send_consultation_notification, send_confirmation_email
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def health_check(request):
+    """
+    Health check endpoint to verify backend status.
+    Returns system information and database connectivity status.
+    """
+    health_status = {
+        'status': 'healthy',
+        'timestamp': timezone.now().isoformat(),
+        'service': 'SRS Consulting Backend',
+        'version': '1.0.0',
+        'system': {
+            'platform': platform.platform(),
+            'python_version': platform.python_version(),
+            'django_version': '4.2.7',
+            'architecture': platform.architecture()[0],
+            'processor': platform.processor(),
+        },
+        'database': {
+            'status': 'unknown',
+            'connection': False,
+        },
+        'endpoints': {
+            'contact_request': '/api/contact-request/',
+            'admin_login': '/api/admin/login/',
+            'health_check': '/api/health/',
+        }
+    }
+    
+    # Check database connectivity
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            health_status['database']['status'] = 'connected'
+            health_status['database']['connection'] = True
+    except OperationalError as e:
+        health_status['database']['status'] = 'error'
+        health_status['database']['connection'] = False
+        health_status['database']['error'] = str(e)
+        health_status['status'] = 'unhealthy'
+    except Exception as e:
+        health_status['database']['status'] = 'unknown'
+        health_status['database']['connection'] = False
+        health_status['database']['error'] = str(e)
+        health_status['status'] = 'unhealthy'
+    
+    # Add contact request count
+    try:
+        contact_count = ContactRequest.objects.count()
+        health_status['metrics'] = {
+            'total_contact_requests': contact_count,
+        }
+    except Exception as e:
+        health_status['metrics'] = {
+            'error': f'Could not fetch metrics: {str(e)}'
+        }
+    
+    # Determine overall status
+    if health_status['database']['connection']:
+        return Response(health_status, status=status.HTTP_200_OK)
+    else:
+        return Response(health_status, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 
 class ContactRequestCreateView(generics.CreateAPIView):
