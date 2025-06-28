@@ -6,9 +6,8 @@ interface ContactRequest {
   name: string;
   email: string;
   phone: string;
-  company: string;
-  services: string[];
-  message: string;
+  services_needed: string[];
+  services_display: string[];
   created_at: string;
 }
 
@@ -38,7 +37,7 @@ const AdminPage: React.FC = () => {
 
   useEffect(() => {
     // Fetch CSRF token on mount
-    fetch('http://localhost:8000/api/csrf/', {
+    fetch('/api/csrf/', {
       credentials: 'include',
     });
   }, []);
@@ -50,7 +49,7 @@ const AdminPage: React.FC = () => {
     
     try {
       const csrftoken = getCookie('csrftoken');
-      const response = await fetch('http://localhost:8000/api/admin/login/', {
+      const response = await fetch('/api/admin/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,7 +76,7 @@ const AdminPage: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:8000/api/admin/logout/', {
+      await fetch('/api/admin/logout/', {
         method: 'POST',
         credentials: 'include',
       });
@@ -96,14 +95,14 @@ const AdminPage: React.FC = () => {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:8000/api/admin/contact-request/list/', {
+      const response = await fetch('/api/admin/contact-request/list/', {
         method: 'GET',
         credentials: 'include', // Include cookies for session
       });
       
       if (response.ok) {
         const data = await response.json();
-        setEnquiries(data.enquiries || data);
+        setEnquiries(data.enquiries || []);
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Failed to fetch enquiries');
@@ -226,9 +225,7 @@ const AdminPage: React.FC = () => {
                       <th>Name</th>
                       <th>Email</th>
                       <th>Phone</th>
-                      <th>Company</th>
                       <th>Services</th>
-                      <th>Message</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -242,22 +239,13 @@ const AdminPage: React.FC = () => {
                         <td>
                           <a href={`tel:${enquiry.phone}`}>{enquiry.phone}</a>
                         </td>
-                        <td>{enquiry.company}</td>
                         <td>
                           <div className="services-tags">
-                            {enquiry.services.map((service, index) => (
+                            {(enquiry.services_display || []).map((service, index) => (
                               <span key={index} className="service-tag">
                                 {service}
                               </span>
                             ))}
-                          </div>
-                        </td>
-                        <td>
-                          <div className="message-preview">
-                            {enquiry.message.length > 100 
-                              ? `${enquiry.message.substring(0, 100)}...` 
-                              : enquiry.message
-                            }
                           </div>
                         </td>
                       </tr>
