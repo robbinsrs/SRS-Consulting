@@ -155,4 +155,5 @@ SRS_TEAM_EMAILS = [
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
+    "http://srsconsulting.local:3000",
 ] 

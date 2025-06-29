@@ -73,19 +73,45 @@ srs-consulting/
    ```
 
 4. **Access the application:**
-   - Frontend: http://localhost:3000
-   - Admin Dashboard: http://localhost:3000/admin (username: srsadmin, password: srsadmin2024)
-   - Backend API: http://localhost:8000
-   - Django Admin: http://localhost:8000/admin
-   - **API Documentation:** http://localhost:8000/swagger/
-   - **Health Check:** http://localhost:8000/api/health/
+   - Frontend: http://localhost:3000 (or http://srsconsulting.local:3000)
+   - Admin Dashboard: http://localhost:3000/admin (or http://srsconsulting.local:3000/admin)
+   - Backend API: http://localhost:8000 (or http://srsconsulting.local:8000)
+   - Django Admin: http://localhost:8000/admin (or http://srsconsulting.local:8000/admin)
+   - **API Documentation:** http://localhost:8000/swagger/ (or http://srsconsulting.local:8000/swagger/)
+   - **Health Check:** http://localhost:8000/api/health/ (or http://srsconsulting.local:8000/api/health/)
+
+### Custom Domain Setup (Optional)
+
+For a more professional development experience, you can use `srsconsulting.local` instead of `localhost`:
+
+1. **Run the setup script:**
+   ```bash
+   ./setup-domain.sh
+   ```
+
+2. **Or manually add to hosts file:**
+   ```bash
+   sudo nano /etc/hosts
+   # Add: 127.0.0.1 srsconsulting.local
+   ```
+
+3. **Restart the application:**
+   ```bash
+   docker-compose up --build
+   ```
+
+4. **Access via custom domain:**
+   - Frontend: http://srsconsulting.local:3000
+   - Backend: http://srsconsulting.local:8000
+   - Admin: http://srsconsulting.local:3000/admin
+   - API Docs: http://srsconsulting.local:8000/swagger/
 
 ## How to Access
 
 Once the application is running, you can access different parts of the system:
 
 ### 🌐 **Main Website**
-- **URL:** http://localhost:3000
+- **URL:** http://localhost:3000 (or http://srsconsulting.local:3000)
 - **Purpose:** Public-facing website for SRS Consulting
 - **Features:** 
   - Company information and services
@@ -94,7 +120,7 @@ Once the application is running, you can access different parts of the system:
   - Responsive design
 
 ### 🔐 **Admin Dashboard**
-- **URL:** http://localhost:3000/admin
+- **URL:** http://localhost:3000/admin (or http://srsconsulting.local:3000/admin)
 - **Credentials:** Username: `srsadmin`, Password: `srsadmin2024`
 - **Purpose:** View and manage all consultation requests
 - **Features:**
@@ -106,7 +132,7 @@ Once the application is running, you can access different parts of the system:
   - Refresh and logout functionality
 
 ### 🔧 **Backend API**
-- **URL:** http://localhost:8000
+- **URL:** http://localhost:8000 (or http://srsconsulting.local:8000)
 - **Purpose:** REST API for the frontend
 - **Endpoints:**
   - `POST /api/contact-request/` - Submit new consultation request
@@ -116,7 +142,7 @@ Once the application is running, you can access different parts of the system:
   - `GET /api/health/` - Backend health check and system status
 
 ### 📚 **API Documentation (Swagger)**
-- **URL:** http://localhost:8000/swagger/
+- **URL:** http://localhost:8000/swagger/ (or http://srsconsulting.local:8000/swagger/)
 - **Purpose:** Interactive API documentation
 - **Features:**
   - Complete API endpoint documentation
@@ -126,7 +152,7 @@ Once the application is running, you can access different parts of the system:
   - Schema definitions
 
 ### 🏥 **Health Check**
-- **URL:** http://localhost:8000/api/health/
+- **URL:** http://localhost:8000/api/health/ (or http://srsconsulting.local:8000/api/health/)
 - **Purpose:** Backend system monitoring
 - **Returns:**
   - System status (healthy/unhealthy)
@@ -136,7 +162,7 @@ Once the application is running, you can access different parts of the system:
   - Available endpoints list
 
 ### ⚙️ **Django Admin**
-- **URL:** http://localhost:8000/admin
+- **URL:** http://localhost:8000/admin (or http://srsconsulting.local:8000/admin)
 - **Purpose:** Django's built-in admin interface
 - **Features:** Database management and user administration
 - **Note:** Requires Django superuser account
