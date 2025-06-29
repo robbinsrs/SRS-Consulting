@@ -46,6 +46,9 @@ srs-consulting/
 - **Selective CSRF Protection:** Public endpoints work without CSRF tokens, admin endpoints are protected
 - **Backend Health Monitoring:** Health check endpoint for system status and diagnostics
 - **API Documentation:** Swagger/OpenAPI documentation for all endpoints
+- **Enhanced Admin Interface:** Advanced admin dashboard with search, pagination, and theme toggle
+- **Improved Footer:** Professional footer with social media icons and better responsive design
+- **Dark Mode Optimization:** Enhanced visibility and contrast across all components
 
 ## Quick Start
 
@@ -150,6 +153,7 @@ Once the application is running, you can access different parts of the system:
   - Contact form for consultation requests
   - Theme toggle (light/dark mode)
   - Responsive design
+  - Professional footer with social media icons
 
 ### 🔐 **Admin Dashboard**
 - **URL:** http://localhost:3000/admin (or http://srsconsulting.local:3000/admin)
@@ -157,7 +161,11 @@ Once the application is running, you can access different parts of the system:
 - **Purpose:** View and manage all consultation requests
 - **Features:**
   - Secure session-based authentication
-  - View all submitted enquiries
+  - **Advanced Search:** Real-time search across name, email, phone, and services
+  - **Pagination:** 10 items per page with navigation controls
+  - **Theme Toggle:** Light/dark mode support in admin interface
+  - **Most Recent First:** Enquiries automatically sorted by creation date
+  - **High Contrast Services:** Service tags with improved visibility
   - Contact details with clickable email/phone links
   - Service selections and messages
   - Responsive table design
@@ -206,10 +214,11 @@ Once the application is running, you can access different parts of the system:
 - **Setup:** Configure email settings in backend `.env` file
 
 ### 🎨 **Theme Features**
-- **Toggle:** Available in the header navigation
+- **Toggle:** Available in the header navigation and admin interface
 - **Colors:** Light blue and light pink theme
 - **Modes:** Light and dark mode support
 - **Persistence:** Theme preference saved in browser
+- **Optimized Visibility:** Enhanced contrast for all text elements in dark mode
 
 ## API Endpoints
 
@@ -230,6 +239,26 @@ Once the application is running, you can access different parts of the system:
 - `GET /swagger.yaml` - OpenAPI YAML schema
 
 ## Recent Updates
+
+### ✅ **Enhanced Admin Dashboard**
+- **Search Functionality:** Real-time search across all enquiry fields
+- **Pagination:** 10 items per page with Previous/Next navigation
+- **Theme Toggle:** Light/dark mode support in admin interface
+- **Most Recent First:** Automatic sorting by creation date
+- **High Contrast Services:** Service tags with primary color background and white text
+- **Improved UX:** Better responsive design and loading states
+
+### ✅ **Footer Improvements**
+- **Social Media Icons:** Replaced text links with Unicode icons (LinkedIn, Facebook, Twitter, Instagram)
+- **Better Responsive Design:** Improved layout for all screen sizes
+- **Professional Styling:** Enhanced visual hierarchy and spacing
+- **Contact Information:** Better organized contact details with icons
+
+### ✅ **Dark Mode Optimization**
+- **Success Screen:** Fixed visibility issues in dark mode
+- **CSS Variables:** Consistent theme support across all components
+- **High Contrast:** Improved text readability in both light and dark modes
+- **Service Tags:** Enhanced visibility with better color contrast
 
 ### ✅ **Health Check System**
 - **New Endpoint:** `/api/health/` for backend monitoring

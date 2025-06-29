@@ -33,15 +33,48 @@ const AdminPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [enquiries, setEnquiries] = useState<ContactRequest[]>([]);
+  const [filteredEnquiries, setFilteredEnquiries] = useState<ContactRequest[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
     // Fetch CSRF token on mount
     fetch('/api/csrf/', {
       credentials: 'include',
     });
+    
+    // Load theme from localStorage
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark';
+    if (savedTheme) {
+      setTheme(savedTheme);
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
   }, []);
+
+  useEffect(() => {
+    // Filter enquiries based on search term
+    const filtered = enquiries.filter(enquiry =>
+      enquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      enquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      enquiry.phone.includes(searchTerm) ||
+      enquiry.services_display.some(service => 
+        service.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+    setFilteredEnquiries(filtered);
+    setCurrentPage(1); // Reset to first page when searching
+  }, [enquiries, searchTerm]);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,9 +119,12 @@ const AdminPage: React.FC = () => {
     }
     setIsAuthenticated(false);
     setEnquiries([]);
+    setFilteredEnquiries([]);
     setUsername('');
     setPassword('');
     setShowPassword(false);
+    setSearchTerm('');
+    setCurrentPage(1);
   };
 
   const fetchEnquiries = async () => {
@@ -103,7 +139,10 @@ const AdminPage: React.FC = () => {
       
       if (response.ok) {
         const data = await response.json();
-        setEnquiries(data.enquiries || []);
+        const sortedEnquiries = (data.enquiries || []).sort((a: ContactRequest, b: ContactRequest) => 
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+        setEnquiries(sortedEnquiries);
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Failed to fetch enquiries');
@@ -128,11 +167,28 @@ const AdminPage: React.FC = () => {
     });
   };
 
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentEnquiries = filteredEnquiries.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredEnquiries.length / itemsPerPage);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
   if (!isAuthenticated) {
     return (
       <div className="admin-login">
         <div className="login-card">
-          <h2>Admin Access</h2>
+          <div className="login-header">
+            <h2>Admin Access</h2>
+            <button 
+              onClick={toggleTheme} 
+              className="theme-toggle"
+              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            >
+              {theme === 'light' ? '🌙' : '☀️'}
+            </button>
+          </div>
           <form onSubmit={handleLogin}>
             <div className="form-group">
               <label htmlFor="username">Username</label>
@@ -193,6 +249,13 @@ const AdminPage: React.FC = () => {
           <h1>Enquiry Management</h1>
           <div className="admin-actions">
             <button 
+              onClick={toggleTheme} 
+              className="theme-toggle"
+              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            >
+              {theme === 'light' ? '🌙' : '☀️'}
+            </button>
+            <button 
               onClick={fetchEnquiries} 
               className="btn btn-secondary"
               disabled={loading}
@@ -214,46 +277,94 @@ const AdminPage: React.FC = () => {
           <div className="error-message">{error}</div>
         ) : (
           <div className="enquiries-table">
-            <h2>Consultation Requests ({enquiries.length})</h2>
-            {enquiries.length === 0 ? (
-              <p>No enquiries found.</p>
-            ) : (
-              <div className="table-container">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>Phone</th>
-                      <th>Services</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {enquiries.map((enquiry) => (
-                      <tr key={enquiry.id}>
-                        <td>{formatDate(enquiry.created_at)}</td>
-                        <td>{enquiry.name}</td>
-                        <td>
-                          <a href={`mailto:${enquiry.email}`}>{enquiry.email}</a>
-                        </td>
-                        <td>
-                          <a href={`tel:${enquiry.phone}`}>{enquiry.phone}</a>
-                        </td>
-                        <td>
-                          <div className="services-tags">
-                            {(enquiry.services_display || []).map((service, index) => (
-                              <span key={index} className="service-tag">
-                                {service}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            <div className="table-header">
+              <h2>Consultation Requests ({filteredEnquiries.length})</h2>
+              <div className="search-container">
+                <input
+                  type="text"
+                  placeholder="Search by name, email, phone, or services..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input"
+                />
               </div>
+            </div>
+            
+            {filteredEnquiries.length === 0 ? (
+              <p className="no-results">
+                {searchTerm ? 'No enquiries found matching your search.' : 'No enquiries found.'}
+              </p>
+            ) : (
+              <>
+                <div className="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Services</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentEnquiries.map((enquiry) => (
+                        <tr key={enquiry.id}>
+                          <td>{formatDate(enquiry.created_at)}</td>
+                          <td>{enquiry.name}</td>
+                          <td>
+                            <a href={`mailto:${enquiry.email}`}>{enquiry.email}</a>
+                          </td>
+                          <td>
+                            <a href={`tel:${enquiry.phone}`}>{enquiry.phone}</a>
+                          </td>
+                          <td>
+                            <div className="services-tags">
+                              {(enquiry.services_display || []).map((service, index) => (
+                                <span key={index} className="service-tag">
+                                  {service}
+                                </span>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                
+                {totalPages > 1 && (
+                  <div className="pagination">
+                    <button
+                      onClick={() => paginate(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="pagination-btn"
+                    >
+                      Previous
+                    </button>
+                    
+                    <div className="page-numbers">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
+                        <button
+                          key={number}
+                          onClick={() => paginate(number)}
+                          className={`pagination-btn ${currentPage === number ? 'active' : ''}`}
+                        >
+                          {number}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    <button
+                      onClick={() => paginate(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="pagination-btn"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}

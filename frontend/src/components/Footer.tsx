@@ -6,13 +6,22 @@ const Footer: React.FC = () => {
     <footer className="footer">
       <div className="container">
         <div className="footer-content">
-          <div className="footer-section">
+          <div className="footer-section main-section">
             <h3>SRS Consulting</h3>
             <p>Your trusted partner for accounting, compliance & growth in New Zealand.</p>
             <div className="social-links">
-              <a href="#" className="social-link">LinkedIn</a>
-              <a href="#" className="social-link">Facebook</a>
-              <a href="#" className="social-link">Twitter</a>
+              <a href="#" className="social-link" aria-label="LinkedIn">
+                <span className="social-icon">💼</span>
+              </a>
+              <a href="#" className="social-link" aria-label="Facebook">
+                <span className="social-icon">📘</span>
+              </a>
+              <a href="#" className="social-link" aria-label="Twitter">
+                <span className="social-icon">🐦</span>
+              </a>
+              <a href="#" className="social-link" aria-label="Instagram">
+                <span className="social-icon">📷</span>
+              </a>
             </div>
           </div>
           
@@ -37,15 +46,33 @@ const Footer: React.FC = () => {
             </ul>
           </div>
           
-          <div className="footer-section">
+          <div className="footer-section contact-section">
             <h4>Contact Info</h4>
             <div className="contact-info">
-              <p>📍 Auckland, New Zealand</p>
-              <p>📞 +64 22 185 3119 (Robbin)</p>
-              <p>📞 +64 21 199 7272 (Swati)</p>
-              <p>✉️ robbin@srsnz.com</p>
-              <p>✉️ swati@srsnz.com</p>
-              <p>🕒 Mon-Fri: 8:00 AM - 6:00 PM</p>
+              <div className="contact-item">
+                <span className="contact-icon">📍</span>
+                <span>Auckland, New Zealand</span>
+              </div>
+              <div className="contact-item">
+                <span className="contact-icon">📞</span>
+                <span>+64 22 185 3119 (Robbin)</span>
+              </div>
+              <div className="contact-item">
+                <span className="contact-icon">📞</span>
+                <span>+64 21 199 7272 (Swati)</span>
+              </div>
+              <div className="contact-item">
+                <span className="contact-icon">✉️</span>
+                <span>robbin@srsnz.com</span>
+              </div>
+              <div className="contact-item">
+                <span className="contact-icon">✉️</span>
+                <span>swati@srsnz.com</span>
+              </div>
+              <div className="contact-item">
+                <span className="contact-icon">🕒</span>
+                <span>Mon-Fri: 8:00 AM - 6:00 PM</span>
+              </div>
             </div>
           </div>
         </div>
