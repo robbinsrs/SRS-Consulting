@@ -36,6 +36,11 @@ code {
   --color-accent: #ffd6e0; /* soft pink accent */
   --color-card-bg: #ffffff;
   --color-border: #e3e8f0;
+  --color-background-secondary: #f8f9fa;
+  --color-text-secondary: #6c757d;
+  --color-success-text: #155724;
+  --color-success-bg: #d4edda;
+  --color-success-border: #c3e6cb;
 }
 
 [data-theme='dark'] {
@@ -46,4 +51,9 @@ code {
   --color-accent: #2d3a5a;
   --color-card-bg: #232b43;
   --color-border: #2d3a5a;
+  --color-background-secondary: #2d3a5a;
+  --color-text-secondary: #a0aec0;
+  --color-success-text: #68d391;
+  --color-success-bg: #22543d;
+  --color-success-border: #38a169;
 } 

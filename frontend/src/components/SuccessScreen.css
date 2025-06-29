@@ -25,7 +25,7 @@
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 16px;
-  color: #333;
+  color: var(--color-text);
 }
 
 .success-card .success-message {
@@ -37,26 +37,28 @@
 
 .request-summary {
   text-align: left;
-  background: #f8f9fa;
+  background: var(--color-background-secondary);
   padding: 25px;
   border-radius: 8px;
   margin: 30px 0;
+  border: 1px solid var(--color-border);
 }
 
 .request-summary h3 {
   font-size: 1.3rem;
   font-weight: 600;
   margin-bottom: 20px;
-  color: #333;
+  color: var(--color-text);
 }
 
 .summary-item {
   margin-bottom: 15px;
   line-height: 1.5;
+  color: var(--color-text);
 }
 
 .summary-item strong {
-  color: #333;
+  color: var(--color-text);
   min-width: 120px;
   display: inline-block;
 }
@@ -68,7 +70,7 @@
 
 .services-list li {
   margin-bottom: 5px;
-  color: #666;
+  color: var(--color-text);
 }
 
 .next-steps {
@@ -80,7 +82,7 @@
   font-size: 1.3rem;
   font-weight: 600;
   margin-bottom: 15px;
-  color: #333;
+  color: var(--color-text);
 }
 
 .next-steps ol {
@@ -90,7 +92,7 @@
 
 .next-steps li {
   margin-bottom: 8px;
-  color: #666;
+  color: var(--color-text);
 }
 
 .contact-info {

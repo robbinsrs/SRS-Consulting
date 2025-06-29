@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../utils/axios';
 import './ContactForm.css';
 
 interface ContactRequest {
@@ -303,7 +303,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ onSubmit }) => {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post('/api/contact-request/', formData);
+      const response = await api.post('/contact-request/', formData);
       
       if (response.status === 201) {
         onSubmit(formData);

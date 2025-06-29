@@ -8,6 +8,8 @@ from django.contrib.auth.models import User
 from django.db import connection
 from django.db.utils import OperationalError
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 import platform
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -132,6 +134,7 @@ def health_check(request):
         )
     }
 )
+@method_decorator(csrf_exempt, name='dispatch')
 class ContactRequestCreateView(generics.CreateAPIView):
     """API view for creating contact requests."""
     queryset = ContactRequest.objects.all()
