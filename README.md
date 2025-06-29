@@ -106,6 +106,38 @@ For a more professional development experience, you can use `srsconsulting.local
    - Admin: http://srsconsulting.local:3000/admin
    - API Docs: http://srsconsulting.local:8000/swagger/
 
+### Public Sharing with ngrok (Optional)
+
+To share your application publicly for demos or testing, you can use ngrok:
+
+1. **Install ngrok:**
+   ```bash
+   # macOS (using Homebrew)
+   brew install ngrok
+   
+   # Or download from https://ngrok.com/download
+   ```
+
+2. **Sign up for free account:**
+   - Go to https://dashboard.ngrok.com/signup
+   - Create a free account
+
+3. **Configure ngrok:**
+   ```bash
+   ngrok config add-authtoken YOUR_AUTHTOKEN_HERE
+   ```
+
+4. **Start ngrok tunnel:**
+   ```bash
+   ngrok http 3000
+   ```
+
+5. **Access your public URL:**
+   - Use the provided ngrok URL (e.g., `https://abc123.ngrok-free.app`)
+   - Share this URL with others for demos or testing
+
+**Note:** The application is already configured to work with ngrok. The frontend has been updated to accept ngrok host headers.
+
 ## How to Access
 
 Once the application is running, you can access different parts of the system:
@@ -224,6 +256,13 @@ Once the application is running, you can access different parts of the system:
 - **Error Handling:** Added null checks to prevent map errors
 - **API Endpoints:** Corrected endpoint URLs to match backend configuration
 
+### ✅ **ngrok Public Sharing Support**
+- **Frontend Configuration:** Updated to accept ngrok host headers
+- **Environment Variables:** Added `DANGEROUSLY_DISABLE_HOST_CHECK=true` for ngrok compatibility
+- **Package.json:** Modified start script to use `HOST=0.0.0.0`
+- **Public URLs:** Enable sharing your application via ngrok for demos and testing
+- **Setup Instructions:** Complete ngrok installation and configuration guide added to README
+
 ## Environment Variables
 
 Create `.env` files in both `backend/` and `frontend/` directories:
@@ -246,6 +285,10 @@ EMAIL_HOST_PASSWORD=your-app-password
 
 ### Frontend (.env)
 ```
+# Disable host header check for ngrok compatibility
+DANGEROUSLY_DISABLE_HOST_CHECK=true
+
+# API URL for development
 REACT_APP_API_URL=http://localhost:8000/api
 ```
 
@@ -294,6 +337,12 @@ The frontend container is configured to proxy API requests to the backend:
 - **Cause**: Database connection issues
 - **Solution**: Check database container: `docker-compose logs db`
 - **Check**: Database credentials in `.env` file
+
+#### 8. **"Invalid Host header" error with ngrok**
+- **Cause**: React development server rejecting ngrok host headers
+- **Solution**: Ensure `DANGEROUSLY_DISABLE_HOST_CHECK=true` is in frontend `.env` file
+- **Check**: Restart frontend container after adding the environment variable
+- **Verify**: Frontend package.json has `HOST=0.0.0.0` in start script
 
 ### Debug Commands
 ```bash
