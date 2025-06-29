@@ -11,6 +11,7 @@
 - **Database:** PostgreSQL (AWS RDS Free Tier)
 - **Deployment:** Docker containers
 - **Documentation:** Swagger/OpenAPI
+- **Email:** Gmail SMTP with automatic notifications
 
 ## Project Structure
 
@@ -38,7 +39,7 @@ srs-consulting/
 - Real-time form validation
 - Success confirmation screen
 - **Secure Admin Dashboard:** Session-based authentication at `/admin` to view all enquiries
-- **Email Notifications:** Automatic email notifications to SRS team members on new requests
+- **Email Notifications:** ✅ **WORKING** - Automatic email notifications to SRS team members on new requests
 - **Theme Toggle:** Light/dark mode support throughout the application
 - **Responsive Design:** Mobile-friendly interface with modern UI
 - **Security:** Django session-based authentication with CSRF protection
@@ -207,11 +208,17 @@ Once the application is running, you can access different parts of the system:
 - **Features:** Database management and user administration
 - **Note:** Requires Django superuser account
 
-### 📧 **Email Notifications**
+### 📧 **Email Notifications** ✅ **WORKING**
+- **Status:** ✅ **FULLY FUNCTIONAL** - Tested and verified
+- **Configuration:** Gmail SMTP with app password authentication
 - **Automatic emails sent to:**
   - **SRS Team:** robbin@srsnz.com, swati@srsnz.com (on new requests)
-  - **Requesters:** Auto-confirmation emails
-- **Setup:** Configure email settings in backend `.env` file
+  - **Requesters:** Auto-reply to the person who submitted the request
+- **Email Content:**
+  - **Team Notification:** Complete request details including name, email, phone, services, and timestamp
+  - **Confirmation Email:** Thank you message with request details and SRS contact information
+- **Setup:** Email settings configured in `docker-compose.yml` environment variables
+- **Testing:** Successfully tested via API calls and frontend form submissions
 
 ### 🎨 **Theme Features**
 - **Toggle:** Available in the header navigation and admin interface
@@ -239,6 +246,15 @@ Once the application is running, you can access different parts of the system:
 - `GET /swagger.yaml` - OpenAPI YAML schema
 
 ## Recent Updates
+
+### ✅ **Email System Implementation** (Latest)
+- **Gmail SMTP Integration:** Configured with app password authentication
+- **Automatic Notifications:** Team members receive immediate notifications on new requests
+- **Confirmation Emails:** Requesters receive auto-reply with contact details
+- **Debug Logging:** Added comprehensive logging for email delivery tracking
+- **Error Handling:** Graceful error handling with detailed error messages
+- **Testing:** Successfully tested via API calls and frontend submissions
+- **Configuration:** Email settings managed through Docker environment variables
 
 ### ✅ **Enhanced Admin Dashboard**
 - **Search Functionality:** Real-time search across all enquiry fields
@@ -294,31 +310,32 @@ Once the application is running, you can access different parts of the system:
 
 ## Environment Variables
 
-Create `.env` files in both `backend/` and `frontend/` directories:
+The application uses environment variables configured in `docker-compose.yml`:
 
-### Backend (.env)
+### Backend Environment Variables (in docker-compose.yml)
+```yaml
+environment:
+  DEBUG: "True"
+  SECRET_KEY: "django-insecure-change-this-in-production"
+  DB_NAME: srs_consulting
+  DB_USER: postgres
+  DB_PASSWORD: postgres
+  DB_HOST: db
+  DB_PORT: "5432"
+  ALLOWED_HOSTS: "localhost,127.0.0.1,backend,srsconsulting.local"
+  CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://srsconsulting.local:3000"
+  # Email Settings (Gmail SMTP)
+  EMAIL_HOST: "smtp.gmail.com"
+  EMAIL_PORT: "587"
+  EMAIL_USE_TLS: "True"
+  EMAIL_HOST_USER: "robbin@srsnz.com"
+  EMAIL_HOST_PASSWORD: "your-app-password"
 ```
-DEBUG=True
-SECRET_KEY=your-secret-key
-DATABASE_URL=postgresql://user:password@localhost:5432/srs_consulting
-ALLOWED_HOSTS=localhost,127.0.0.1
-CORS_ALLOWED_ORIGINS=http://localhost:3000
 
-# Email Settings (for notifications)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_HOST_USER=your-email@gmail.com
-EMAIL_HOST_PASSWORD=your-app-password
-```
-
-### Frontend (.env)
-```
-# Disable host header check for ngrok compatibility
-DANGEROUSLY_DISABLE_HOST_CHECK=true
-
-# API URL for development
-REACT_APP_API_URL=http://localhost:8000/api
+### Frontend Environment Variables (in docker-compose.yml)
+```yaml
+environment:
+  REACT_APP_API_URL: http://srsconsulting.local:8000/api
 ```
 
 ## Docker Configuration
@@ -373,6 +390,13 @@ The frontend container is configured to proxy API requests to the backend:
 - **Check**: Restart frontend container after adding the environment variable
 - **Verify**: Frontend package.json has `HOST=0.0.0.0` in start script
 
+#### 9. **Email notifications not working**
+- **Cause**: Gmail SMTP authentication issues
+- **Solution**: Verify Gmail app password is correct and 2FA is enabled
+- **Check**: Backend logs for SMTP error messages
+- **Verify**: Email environment variables are set correctly in docker-compose.yml
+- **Test**: Use API call to test email functionality: `curl -X POST http://localhost:8000/api/contact-request/ -H "Content-Type: application/json" -d '{"name":"Test User","email":"test@example.com","phone":"0212345678","services_needed":["company_setup"]}'`
+
 ### Debug Commands
 ```bash
 # Check container status
@@ -394,6 +418,11 @@ curl http://localhost:8000/api/health/
 
 # Test API documentation
 curl http://localhost:8000/swagger/
+
+# Test email functionality
+curl -X POST http://localhost:8000/api/contact-request/ \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test User","email":"test@example.com","phone":"0212345678","services_needed":["company_setup"]}'
 ```
 
 ## Admin Access
@@ -411,7 +440,9 @@ The system automatically sends:
 1. **Team Notifications:** Email to both SRS team members (robbin@srsnz.com, swati@srsnz.com) when new requests are submitted
 2. **Confirmation Emails:** Auto-reply to the person who submitted the request
 
-**Setup Required:** Configure email settings in backend `.env` file for notifications to work.
+**Status:** ✅ **FULLY FUNCTIONAL** - Tested and verified working
+**Setup:** Email settings configured in docker-compose.yml environment variables
+**Testing:** Successfully tested via API calls and frontend form submissions
 
 ## Security Features
 
@@ -463,6 +494,7 @@ curl -X POST http://localhost:8000/api/admin/login/ \
 - ✅ Comprehensive email validation
 - ✅ Health monitoring system
 - ✅ API documentation
+- ✅ **Email notifications working**
 
 #### Required Improvements
 1. **Remove Hardcoded Credentials**
