@@ -10,6 +10,7 @@
 - **Backend:** Django REST API
 - **Database:** PostgreSQL (AWS RDS Free Tier)
 - **Deployment:** Docker containers
+- **Documentation:** Swagger/OpenAPI
 
 ## Project Structure
 
@@ -41,6 +42,10 @@ srs-consulting/
 - **Theme Toggle:** Light/dark mode support throughout the application
 - **Responsive Design:** Mobile-friendly interface with modern UI
 - **Security:** Django session-based authentication with CSRF protection
+- **Comprehensive Email Validation:** Support for Australian, New Zealand, and global email domains
+- **Selective CSRF Protection:** Public endpoints work without CSRF tokens, admin endpoints are protected
+- **Backend Health Monitoring:** Health check endpoint for system status and diagnostics
+- **API Documentation:** Swagger/OpenAPI documentation for all endpoints
 
 ## Quick Start
 
@@ -72,6 +77,8 @@ srs-consulting/
    - Admin Dashboard: http://localhost:3000/admin (username: srsadmin, password: srsadmin2024)
    - Backend API: http://localhost:8000
    - Django Admin: http://localhost:8000/admin
+   - **API Documentation:** http://localhost:8000/swagger/
+   - **Health Check:** http://localhost:8000/api/health/
 
 ## How to Access
 
@@ -106,6 +113,27 @@ Once the application is running, you can access different parts of the system:
   - `POST /api/admin/login/` - Secure admin login
   - `POST /api/admin/logout/` - Secure admin logout
   - `GET /api/admin/contact-request/list/` - List all requests (authenticated)
+  - `GET /api/health/` - Backend health check and system status
+
+### 📚 **API Documentation (Swagger)**
+- **URL:** http://localhost:8000/swagger/
+- **Purpose:** Interactive API documentation
+- **Features:**
+  - Complete API endpoint documentation
+  - Request/response examples
+  - Interactive testing interface
+  - Authentication details
+  - Schema definitions
+
+### 🏥 **Health Check**
+- **URL:** http://localhost:8000/api/health/
+- **Purpose:** Backend system monitoring
+- **Returns:**
+  - System status (healthy/unhealthy)
+  - Database connectivity status
+  - System information (platform, versions)
+  - Service metrics (contact request count)
+  - Available endpoints list
 
 ### ⚙️ **Django Admin**
 - **URL:** http://localhost:8000/admin
@@ -125,31 +153,50 @@ Once the application is running, you can access different parts of the system:
 - **Modes:** Light and dark mode support
 - **Persistence:** Theme preference saved in browser
 
-## Local Development
-
-1. **Backend setup:**
-   ```bash
-   cd backend
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   python manage.py migrate
-   python manage.py runserver
-   ```
-
-2. **Frontend setup:**
-   ```bash
-   cd frontend
-   npm install
-   npm start
-   ```
-
 ## API Endpoints
 
+### Public Endpoints (No Authentication Required)
 - `POST /api/contact-request/` - Submit contact request
+- `GET /api/health/` - Backend health check
+
+### Admin Endpoints (Authentication Required)
 - `POST /api/admin/login/` - Secure admin login
 - `POST /api/admin/logout/` - Secure admin logout
-- `GET /api/admin/contact-request/list/` - List contact requests (authenticated)
+- `GET /api/admin/contact-request/list/` - List contact requests
+- `GET /api/csrf/` - Get CSRF token for admin authentication
+
+### Documentation Endpoints
+- `GET /swagger/` - Swagger UI documentation
+- `GET /redoc/` - ReDoc documentation
+- `GET /swagger.json` - OpenAPI JSON schema
+- `GET /swagger.yaml` - OpenAPI YAML schema
+
+## Recent Updates
+
+### ✅ **Health Check System**
+- **New Endpoint:** `/api/health/` for backend monitoring
+- **Features:** Database connectivity check, system information, metrics
+- **Use Case:** Quick verification that backend is running without testing other APIs
+
+### ✅ **Swagger/OpenAPI Documentation**
+- **URL:** http://localhost:8000/swagger/
+- **Features:** Interactive API documentation with examples
+- **Benefits:** Easy API exploration and testing
+
+### ✅ **Enhanced Email Validation**
+- **Australian Email Support:** Comprehensive list of Australian email domains
+- **Global Email Support:** Support for international email providers
+- **Validation:** Frontend and backend validation for email format and domains
+
+### ✅ **Selective CSRF Protection**
+- **Public Endpoints:** No CSRF tokens required for contact requests
+- **Admin Endpoints:** CSRF protection for secure admin operations
+- **Custom Middleware:** `SelectiveCsrfMiddleware` for targeted protection
+
+### ✅ **Admin Page Fixes**
+- **Data Structure:** Updated to match actual API response format
+- **Error Handling:** Added null checks to prevent map errors
+- **API Endpoints:** Corrected endpoint URLs to match backend configuration
 
 ## Environment Variables
 
@@ -213,6 +260,15 @@ The frontend container is configured to proxy API requests to the backend:
 - **Cause**: Container not started or build issues
 - **Solution**: Rebuild containers: `docker-compose up --build`
 
+#### 6. **"Cannot read properties of undefined (reading 'map')"**
+- **Cause**: Admin page trying to map undefined data
+- **Solution**: Restart frontend container after backend changes: `docker-compose restart frontend`
+
+#### 7. **Health check shows "unhealthy"**
+- **Cause**: Database connection issues
+- **Solution**: Check database container: `docker-compose logs db`
+- **Check**: Database credentials in `.env` file
+
 ### Debug Commands
 ```bash
 # Check container status
@@ -228,6 +284,12 @@ docker-compose restart frontend
 
 # Rebuild and start
 docker-compose up --build
+
+# Test health check
+curl http://localhost:8000/api/health/
+
+# Test API documentation
+curl http://localhost:8000/swagger/
 ```
 
 ## Admin Access
@@ -250,12 +312,39 @@ The system automatically sends:
 ## Security Features
 
 - ✅ **Session-based authentication** - No plain text passwords transmitted
-- ✅ **CSRF protection** - Built-in Django security
+- ✅ **Selective CSRF protection** - Only admin endpoints require CSRF tokens
 - ✅ **Staff-only access** - Only users with `is_staff=True` can access admin
 - ✅ **Secure cookies** - Session data stored in HTTP-only cookies
 - ✅ **CORS configuration** for cross-origin requests
 - ✅ **Input validation** and sanitization
+- ✅ **Comprehensive email validation** - Support for AU, NZ, and global domains
 - ✅ **Rate limiting** on API endpoints
+
+## API Testing
+
+### Using Swagger UI
+1. Navigate to http://localhost:8000/swagger/
+2. Click on any endpoint to expand
+3. Click "Try it out" to test the endpoint
+4. Fill in required parameters
+5. Click "Execute" to see the response
+
+### Using curl
+```bash
+# Health check
+curl http://localhost:8000/api/health/
+
+# Submit contact request
+curl -X POST http://localhost:8000/api/contact-request/ \
+  -H "Content-Type: application/json" \
+  -d '{"name":"John Smith","email":"john@example.com","phone":"0212345678","services_needed":["company_setup"]}'
+
+# Admin login (requires CSRF token)
+curl -X POST http://localhost:8000/api/admin/login/ \
+  -H "Content-Type: application/json" \
+  -H "X-CSRFToken: your-csrf-token" \
+  -d '{"username":"srsadmin","password":"srsadmin2024"}'
+```
 
 ---
 
@@ -266,7 +355,10 @@ The system automatically sends:
 #### Current State
 - ✅ Session-based authentication implemented
 - ✅ Admin credentials stored in database
-- ✅ CSRF protection enabled
+- ✅ Selective CSRF protection enabled
+- ✅ Comprehensive email validation
+- ✅ Health monitoring system
+- ✅ API documentation
 
 #### Required Improvements
 1. **Remove Hardcoded Credentials**
